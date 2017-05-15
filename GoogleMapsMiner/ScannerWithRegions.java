@@ -17,7 +17,7 @@ import java.util.NoSuchElementException;
 import java.util.Scanner;
 import org.apache.commons.lang3.StringEscapeUtils;
 
-public class ScannerAll {
+public class ScannerWithRegions {
 
 	/**Takes a list of company names and converts it to a set of Company objects with those company names.
 	 * @param fileName File name and address of a .txt file with a different company name on each line, e.g. "C:\\Users\\Username\\Folder\\filename.txt"
@@ -35,9 +35,13 @@ public class ScannerAll {
 
 		//scan every new line of the file as a new company name:
 		while(s.hasNextLine()){
-			String thisCompanyName = s.nextLine();
+			String nextCompany = s.nextLine();
+//			System.out.println("Next line reads: "+nextCompany);
+			String thisCompanyName = nextCompany.replaceAll(";","").replaceAll("\\s+", " ");
+//			System.out.println("Searching for: "+thisCompanyName);
 			Company thisCompany = new Company();
 			thisCompany.setOurName(thisCompanyName);
+			thisCompany.justName = nextCompany.split(";")[0].trim();
 			result.add(thisCompany);
 		}
 		s.close();
@@ -211,7 +215,7 @@ public class ScannerAll {
 			}
 
 			//check if top result matches what we were looking for to a reasonable extent:
-			if(stringsMatchRating(thisGoogleName, thisFullName) < 0.7){
+			if(stringsMatchRating(thisGoogleName, thisFullName) < 0.5){
 				NoSuchElementException e = new NoSuchElementException(); //will result the same way as there being no result at all
 				throw e;
 			}
@@ -326,11 +330,11 @@ public class ScannerAll {
 		try{
 
 			//set up files and writers:
-			String companyListFileName = "C:\\Users\\James\\Documents\\Equipoise\\mining ADDRESSES - names 0.5 but with region data\\Companies_Regions.txt";
+			String companyListFileName = "/path/to/file/Companies_Regions.txt";
 			ArrayList<Company> companies = companiesFromFile(companyListFileName);
-			String companyResultsFileName = "C:\\Users\\James\\Documents\\Equipoise\\mining ADDRESSES - names 0.5 but with region data\\Companies_Regions_FoundAddress.txt";
+			String companyResultsFileName = "/path/to/file/Companies_Regions_FoundAddress.txt";
 			PrintWriter outPW = printToFile(companyResultsFileName);
-			String noResultsFileName = "C:\\Users\\James\\Documents\\Equipoise\\mining ADDRESSES - names 0.5 but with region data\\Companies_Regions_NoAddress.txt";
+			String noResultsFileName = "/path/to/file/Companies_Regions_NoAddress.txt";
 			PrintWriter outNoPW = printToFile(noResultsFileName);
 
 			//loop over all companies taken from input file:
@@ -343,8 +347,8 @@ public class ScannerAll {
 //						outNoPW.flush();
 					}
 					else{
-//						System.out.println(thisCompany.allData());
-						outPW.println(thisCompany.justAddressInfo());
+//						System.out.println(thisCompany.justName+"; "+thisCompany.allData());
+						outPW.println(thisCompany.justName+"; "+thisCompany.allData());
 						outPW.flush();
 					}
 				}
